@@ -1,6 +1,6 @@
 import React from 'react';
 import { Drug } from '../types';
-import QRCodeSVG from './QRCodeSVG';
+import QRCodeSVG from './QRCodeSVG'; // Changed from BarcodeSVG to QRCodeSVG
 
 interface PrintableSingleLabelSheetProps {
     drug: Drug;
@@ -8,97 +8,80 @@ interface PrintableSingleLabelSheetProps {
 }
 
 const PrintableSingleLabelSheet: React.FC<PrintableSingleLabelSheetProps> = ({ drug, count }) => {
-    // The component structure is now a container with individual "page" wrappers for each label.
-    // This provides a cleaner structure for CSS page-break rules to avoid browser rendering bugs.
     return (
-        <div className="label-sheet-container">
-            {Array.from({ length: count }).map((_, index) => (
-                <div key={index} className="label-page">
-                    <div className="label-content">
+        <>
+            {/* This container is for screen preview only. On print, each .label becomes its own page. */}
+            <div className="label-preview-container">
+                {Array.from({ length: count }).map((_, index) => (
+                    <div key={index} className="label">
                         <div className="label-qrcode-wrapper">
                             {drug.internalBarcode && <QRCodeSVG value={drug.internalBarcode} />}
                         </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
             <style>{`
-                /* Print-specific styles take precedence */
+                /* For screen preview only */
+                .label-preview-container {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(6cm, 1fr));
+                    gap: 0.5cm;
+                }
+                .label {
+                    border: 1px dashed #ccc;
+                    padding: 0.2cm;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: white;
+                    aspect-ratio: 1 / 1; /* Square aspect ratio for QR Code */
+                }
+                .label-qrcode-wrapper {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .label-qrcode-wrapper svg {
+                    max-width: 90%;
+                    max-height: 90%;
+                }
+
                 @media print {
-                    /* Define the exact size of each physical label for the printer driver */
+                    .label-preview-container {
+                        display: block; /* Let labels flow naturally */
+                    }
+
                     @page {
-                        size: 4cm 3cm;
+                        /* Size is inherited from user's printer settings. */
                         margin: 0;
                     }
 
                     body, html {
+                        margin: 0 !important;
+                        padding: 0 !important;
                         background: white !important;
                     }
-                    .printable-area {
-                        padding: 0 !important;
-                        background: transparent !important;
-                    }
-                    .label-sheet-container {
+
+                    .label {
+                        width: 100vw;
+                        height: 100vh;
+                        border: none;
                         margin: 0;
-                        padding: 0;
-                    }
-
-                    /* Each label-page represents one full page in the print context. */
-                    .label-page {
-                        width: 4cm;
-                        height: 3cm;
-                        overflow: hidden;
-                        page-break-after: always; /* Force a new label for the next element */
+                        padding: 0.2cm; /* Keep a small quiet zone */
                         box-sizing: border-box;
                     }
 
-                    /* The content inside the page, with padding for the quiet zone. */
-                    .label-content {
-                        width: 100%;
-                        height: 100%;
-                        padding: 2mm; /* Quiet zone for the QR code */
-                        box-sizing: border-box;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
+                    /* THE FIX: Create a new page BEFORE each label, except for the very first one. */
+                    .label:not(:first-of-type) {
+                        page-break-before: always;
                     }
-                }
-
-                /* Screen-only styles for the preview modal */
-                @media screen {
-                     .label-sheet-container {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(8cm, 1fr));
-                        gap: 1cm;
-                        background-color: #e5e7eb;
-                        padding: 1cm;
-                    }
-
-                    .label-page {
-                        width: 4cm;
-                        height: 3cm;
-                        border: 1px dashed #9ca3af;
-                        background-color: white;
-                        display: flex; /* Added for centering in preview */
-                        align-items: center;
-                        justify-content: center;
-                        overflow: hidden;
-                    }
-                    
-                    .label-content {
-                        width: 100%;
-                        height: 100%;
-                        padding: 2mm;
-                        box-sizing: border-box;
-                    }
-                }
-                
-                /* Common styles */
-                .label-qrcode-wrapper {
-                    width: 100%;
-                    height: 100%;
                 }
             `}</style>
-        </div>
+        </>
     );
 };
 

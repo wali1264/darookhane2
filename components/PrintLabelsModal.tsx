@@ -40,7 +40,7 @@ const PrintLabelsModal: React.FC<PrintLabelsModalProps> = ({ drug, onClose }) =>
         <Modal title={`تنظیمات چاپ برچسب برای: ${drug.name}`} onClose={onClose}>
             <div className="space-y-6">
                 <p className="text-sm text-gray-400">
-                    تعداد برچسب‌های مورد نیاز را وارد کنید. سیستم به صورت خودکار لیبل‌ها را در یک صفحه مجازی برای چاپ بهینه با انواع پرینترهای لیبل‌زن می‌چیند.
+                    تعداد برچسب‌های مورد نیاز را وارد کنید. اندازه برچسب باید از قبل در تنظیمات پرینتر شما به عنوان یک سایز کاغذ سفارشی تعریف شده باشد.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
